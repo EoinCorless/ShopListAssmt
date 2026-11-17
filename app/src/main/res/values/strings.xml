@@ -1,12 +1,12 @@
 <resources>
-<string name="app_name">Shop+Plan</string>
+<string name="app_name">Shop+Planning</string>
 <string name="import_csv">Import CSV</string>
 <string name="flag">Flag</string>
 <string name="flagged">Flagged</string>
 <string name="open_list">Open List</string>
 <string name="shop">Shop</string>
-<string name="plan">Plan</string>
-<string name="plan_with_date">Plan: %1$s</string>
+<string name="plan">Planning</string>
+<string name="plan_with_date">Planning: %1$s</string>
 <string name="shop_with_date">Shop (Planned %1$s)</string>
     <string name="import_button">Import</string>
     <string name="export">Export</string>
