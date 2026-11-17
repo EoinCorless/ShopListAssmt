@@ -7,12 +7,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.mmgpt.shoplistgpt.adapter.ItemAdapter
 import com.mmgpt.shoplistgpt.databinding.FragmentCategoryBinding
-import com.mmgpt.shoplistgpt.ShoppingItem
 
 class PlanCategoriesFragment : Fragment() {
 
@@ -33,29 +30,7 @@ class PlanCategoriesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lateinit var adapter: ItemAdapter
-        val dragHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                val from = viewHolder.adapterPosition
-                val to = target.adapterPosition
-                val itemFrom = adapter.currentList.getOrNull(from)
-                val itemTo = adapter.currentList.getOrNull(to)
-                if (itemFrom?.isPlaceholder == true || itemTo?.isPlaceholder == true) return false
-                viewModel.reorderCategory(from - 1, to - 1)
-                adapter.moveItem(from, to)
-                return true
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-
-            override fun isLongPressDragEnabled(): Boolean = false
-        })
-
+        lateinit var dragController: ItemDragReorderController
         adapter = ItemAdapter(
             onAction = { item, action ->
                 val index = adapter.currentList.indexOf(item) - 1
@@ -66,13 +41,15 @@ class PlanCategoriesFragment : Fragment() {
                 }
             },
             mode = ItemAdapter.Mode.PLAN,
-            dragStart = { vh -> dragHelper.startDrag(vh) },
+            dragStart = { vh -> dragController.startDrag(vh) },
             onAdd = { position, name ->
                 viewModel.addCategory(position - 1, name)
             }
         )
         binding.recyclerView.adapter = adapter
-        dragHelper.attachToRecyclerView(binding.recyclerView)
+        dragController = ItemDragReorderController(binding.recyclerView, adapter) { from, to ->
+            viewModel.reorderCategory(from, to)
+        }
 
         binding.recyclerView.setCategoryDoubleTapNavigation(
             viewPager = requireActivity().findViewById(R.id.viewPager),
